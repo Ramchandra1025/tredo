@@ -25,6 +25,22 @@ app.config.update(
 FRONTEND = Path(__file__).resolve().parent.parent / "frontend"
 LIFE_RECOVERY = timedelta(hours=4)
 MAX_LIVES = 5
+TRADER_TYPES = [
+    {"id": "beginner", "label": "Beginner Trader"},
+    {"id": "intraday", "label": "Intraday Trader"},
+    {"id": "swing", "label": "Swing Trader"},
+    {"id": "options", "label": "Options Trader"},
+    {"id": "long_term", "label": "Long-Term Investor"},
+]
+AVATAR_OPTIONS = [
+    {"id": "maya", "name": "Maya", "role": "Curious learner"},
+    {"id": "ari", "name": "Ari", "role": "Chart explorer"},
+    {"id": "candela", "name": "Candela", "role": "Friendly mentor"},
+    {"id": "leo", "name": "Leo", "role": "Steady beginner"},
+    {"id": "nia", "name": "Nia", "role": "Market strategist"},
+]
+TRADER_TYPE_IDS = {item["id"] for item in TRADER_TYPES}
+AVATAR_IDS = {item["id"] for item in AVATAR_OPTIONS}
 init_db()
 _login_failures = {}
 _LOGIN_WINDOW_SECONDS = 600
@@ -96,13 +112,25 @@ def _profile(db, user_id):
                   COALESCE(w.coins,0) coins,COALESCE(l.remaining_lives,5) remaining_lives,
                   COALESCE(s.current_streak,0) current_streak,COALESCE(s.longest_streak,0) longest_streak,
                   COALESCE(us.daily_goal_minutes,10) daily_goal_minutes,
-                  COALESCE(us.timezone,'UTC') timezone,COALESCE(us.onboarding_complete,0) onboarding_complete
+                  COALESCE(us.timezone,'UTC') timezone,COALESCE(us.onboarding_complete,0) onboarding_complete,
+                  COALESCE(us.trader_type,'beginner') trader_type,COALESCE(us.avatar_id,'candela') avatar_id
            FROM users u LEFT JOIN user_wallet w ON w.user_id=u.id
            LEFT JOIN user_lives l ON l.user_id=u.id LEFT JOIN user_streaks s ON s.user_id=u.id
            LEFT JOIN user_settings us ON us.user_id=u.id WHERE u.id=?""",
         (user_id,),
     ).fetchone()
-    return dict(row) if row else None
+    if not row:
+        return None
+    result = dict(row)
+    result["trader_type_label"] = next(
+        (item["label"] for item in TRADER_TYPES if item["id"] == result["trader_type"]),
+        "Beginner Trader",
+    )
+    result["avatar_name"] = next(
+        (item["name"] for item in AVATAR_OPTIONS if item["id"] == result["avatar_id"]),
+        "Candela",
+    )
+    return result
 
 
 def current_user():
@@ -286,7 +314,13 @@ def _level_data(db, user_id, lesson):
     progress = db.execute(
         "SELECT * FROM level_progress WHERE user_id=? AND lesson_id=?", (user_id, lesson["id"])
     ).fetchone()
-    active = next((q for q in questions if not q["mastered"]), None)
+    level_one_flow = lesson["level"] == 1
+    first_pass = level_one_flow and progress["current_question"] <= len(questions)
+    active = (
+        next((q for q in questions if q["sequence_order"] == progress["current_question"]), None)
+        if first_pass
+        else next((q for q in questions if not q["mastered"]), None)
+    )
     attempted, first_correct, accuracy = _accuracy(db, user_id, lesson["id"])
     question = None
     if active and progress["completion_status"] != "completed":
@@ -300,6 +334,7 @@ def _level_data(db, user_id, lesson):
     return {
         "level": level,
         "question": question,
+        "phase": "first_pass" if first_pass else "review" if level_one_flow else "standard",
         "total_questions": len(questions),
         "mastered_questions": mastered,
         "progress_percent": round(mastered * 100 / len(questions)) if questions else 0,
@@ -378,6 +413,8 @@ def _submit_level_answer(db, user_id, lesson_id, answer, requested_question_id=N
         return error[0].json, error[1]
     data = _level_data(db, user_id, lesson)
     active = data["question"]
+    first_pass_mode = data["phase"] == "first_pass"
+    review_mode = data["phase"] == "review"
     if data["completion_status"] == "completed":
         return {"correct": True, "completed": True, "duplicate": True, "progress": data}, 200
     if not active:
@@ -446,11 +483,21 @@ def _submit_level_answer(db, user_id, lesson_id, answer, requested_question_id=N
     )
 
     if not correct:
+        if first_pass_mode:
+            db.execute(
+                "UPDATE level_progress SET current_question=? WHERE user_id=? AND lesson_id=?",
+                (active["number"] + 1, user_id, lesson_id),
+            )
         updated = _level_data(db, user_id, lesson)
         return {
             "correct": False,
             "mastered": False,
-            "message": "Not quite. Read the explanation, then try this question again.",
+            "can_continue": first_pass_mode,
+            "message": (
+                "Not quite. Read the explanation; this question will return in the review round."
+                if first_pass_mode
+                else "Not quite. Read the explanation, then try this question again."
+            ),
             "correct_answer": question["correct_option"],
             "correct_answer_text": option_map.get(question["correct_option"], ""),
             "explanation": question["explanation"],
@@ -470,7 +517,7 @@ def _submit_level_answer(db, user_id, lesson_id, answer, requested_question_id=N
     ).fetchone()[0]
     total = db.execute("SELECT COUNT(*) FROM questions WHERE lesson_id=?", (lesson_id,)).fetchone()[0]
     completion = None
-    next_question = db.execute(
+    next_question = data["total_questions"] + 1 if review_mode else db.execute(
         "SELECT sequence_order FROM questions WHERE id=?", (question_id,)
     ).fetchone()["sequence_order"] + 1
     db.execute(
@@ -524,6 +571,9 @@ def register():
         return jsonify({"error": "Passwords do not match."}), 400
     if data.get("terms_accepted") is not True:
         return jsonify({"error": "Accept the terms to create your account."}), 400
+    trader_type = str(data.get("trader_type") or "beginner")
+    if trader_type not in TRADER_TYPE_IDS:
+        return jsonify({"error": "Choose a valid trader type."}), 400
     try:
         with get_db() as db:
             cur = db.execute(
@@ -532,6 +582,7 @@ def register():
             )
             user_id = cur.lastrowid
             ensure_user_records(db, user_id, is_new=True)
+            db.execute("UPDATE user_settings SET trader_type=? WHERE user_id=?", (trader_type, user_id))
     except sqlite3.IntegrityError:
         return jsonify({"error": "An account with this email already exists."}), 409
     session.clear()
@@ -575,6 +626,85 @@ def me():
     user = current_user()
     user["selected_categories"] = _category_names_for(user["id"])
     return jsonify({"user": user})
+
+
+@app.get("/api/profile")
+@login_required
+def profile():
+    user = current_user()
+    with get_db() as db:
+        selected = _category_names(db, user["id"])
+        current_levels = []
+        if selected:
+            placeholders = ",".join("?" for _ in selected)
+            completed = db.execute(
+                f"SELECT COUNT(*) FROM user_progress p JOIN lessons l ON l.id=p.lesson_id "
+                f"WHERE p.user_id=? AND l.category IN ({placeholders})",
+                [user["id"], *selected],
+            ).fetchone()[0]
+            total = db.execute(
+                f"SELECT COUNT(*) FROM lessons WHERE category IN ({placeholders})", selected
+            ).fetchone()[0]
+            level_rows = db.execute(
+                f"""SELECT l.category,l.level,l.title,COALESCE(lp.completion_status,'in_progress') completion_status
+                    FROM lessons l LEFT JOIN level_progress lp ON lp.lesson_id=l.id AND lp.user_id=?
+                    WHERE l.category IN ({placeholders}) ORDER BY l.category,l.level""",
+                [user["id"], *selected],
+            ).fetchall()
+            opened_categories = set()
+            for level in level_rows:
+                if level["category"] not in opened_categories and level["completion_status"] != "completed":
+                    current_levels.append({
+                        "category": level["category"],
+                        "level": level["level"],
+                        "title": level["title"],
+                    })
+                    opened_categories.add(level["category"])
+        else:
+            completed = total = 0
+        achievements = db.execute(
+            """SELECT a.slug,a.title,a.description,a.icon,ua.unlocked_at
+               FROM user_achievements ua JOIN achievements a ON a.id=ua.achievement_id
+               WHERE ua.user_id=? ORDER BY ua.unlocked_at DESC""",
+            (user["id"],),
+        ).fetchall()
+    return jsonify({
+        "user": user,
+        "selected_categories": selected,
+        "completed_levels": completed,
+        "total_levels": total,
+        "current_levels": current_levels,
+        "achievements": [dict(item) for item in achievements],
+        "trader_types": TRADER_TYPES,
+        "avatars": AVATAR_OPTIONS,
+    })
+
+
+@app.put("/api/profile")
+@login_required
+def update_profile():
+    data = request.get_json(silent=True) or {}
+    name_value = data.get("name")
+    name = name_value.strip() if isinstance(name_value, str) else ""
+    trader_type = data.get("trader_type")
+    avatar_id = data.get("avatar_id")
+    goal = data.get("daily_goal_minutes")
+    if not name or len(name) > 60:
+        return jsonify({"error": "Enter a name between 1 and 60 characters."}), 400
+    if not isinstance(trader_type, str) or trader_type not in TRADER_TYPE_IDS:
+        return jsonify({"error": "Choose a valid trader type."}), 400
+    if not isinstance(avatar_id, str) or avatar_id not in AVATAR_IDS:
+        return jsonify({"error": "Choose one of the available characters."}), 400
+    if isinstance(goal, bool) or goal not in (5, 10, 15, 20, 30):
+        return jsonify({"error": "Choose a daily goal of 5, 10, 15, 20, or 30 minutes."}), 400
+    with get_db() as db:
+        db.execute("UPDATE users SET name=? WHERE id=?", (name, session["user_id"]))
+        db.execute(
+            """UPDATE user_settings SET trader_type=?,avatar_id=?,daily_goal_minutes=?,
+               updated_at=CURRENT_TIMESTAMP WHERE user_id=?""",
+            (trader_type, avatar_id, goal, session["user_id"]),
+        )
+    return jsonify({"message": "Profile saved.", "user": current_user()})
 
 
 def _category_names_for(user_id):

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Your profile · TRADO</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="game-body">
+  <header class="game-nav">
+    <a class="brand" href="/dashboard.html">TRADO<span>.</span></a>
+    <div class="nav-actions"><a class="btn ghost small" href="/dashboard.html">Back to trail</a></div>
+  </header>
+
+  <main class="game-page profile-page">
+    <section class="profile-page-heading">
+      <div><div class="eyebrow">YOUR TRADER PROFILE</div><h1>Make this trail yours</h1><p class="muted">Choose the character and learning identity you want to see on your dashboard.</p></div>
+    </section>
+    <div class="profile-layout">
+      <section class="panel profile-editor-panel">
+        <div class="profile-preview"><span id="profileAvatarPreview" class="profile-avatar-preview"></span><div><h2 id="profilePreviewName">Trader</h2><p id="profileEmail" class="muted"></p></div></div>
+        <form id="profileForm">
+          <label for="profileName">Full name<input id="profileName" type="text" required maxlength="60" autocomplete="name"></label>
+          <label for="profileTraderType">Trader type<select id="profileTraderType" required></select></label>
+          <fieldset class="avatar-fieldset"><legend>Choose your character</legend><div id="avatarChoices" class="avatar-choices"></div></fieldset>
+          <label for="profileDailyGoal">Daily learning goal<select id="profileDailyGoal"><option value="5">5 minutes · a quick start</option><option value="10">10 minutes · steady progress</option><option value="15">15 minutes · build a habit</option><option value="20">20 minutes · go deeper</option><option value="30">30 minutes · full focus</option></select></label>
+          <p id="profileMessage" class="message" role="status"></p>
+          <button id="saveProfile" class="btn full" type="submit">Save profile</button>
+        </form>
+      </section>
+
+      <aside class="profile-side">
+        <section class="panel profile-progress-panel">
+          <div class="eyebrow">YOUR PROGRESS</div><h2>Learning at a glance</h2>
+          <div class="profile-stat-grid">
+            <div><small>LEVELS DONE</small><strong id="profileLevels">0 / 0</strong></div>
+            <div><small>TOTAL XP</small><strong id="profileXp">0</strong></div>
+            <div><small>TRADO CASH</small><strong id="profileCoins">0</strong></div>
+            <div><small>DAY STREAK</small><strong id="profileStreak">0</strong></div>
+          </div>
+          <div class="profile-current-level"><small>CURRENT LEVELS</small><div id="profileCurrentLevels"></div></div>
+          <div class="profile-progress-track"><span id="profileProgressFill"></span></div>
+          <p id="profileProgressNote" class="muted"></p>
+          <div class="profile-paths"><small>YOUR LEARNING PATHS</small><div id="profilePaths"></div></div>
+        </section>
+        <section class="panel profile-achievements-panel">
+          <div class="eyebrow">MILESTONES</div><h2>Achievements</h2><div id="profileAchievements" class="achievement-list"></div>
+        </section>
+        <button id="profileLogout" class="btn ghost full" type="button">Log out</button>
+      </aside>
+    </div>
+  </main>
+
+  <nav class="game-dock" aria-label="Main navigation">
+    <a class="dock-item" href="/dashboard.html"><span aria-hidden="true">⌂</span><small>Trail</small></a>
+    <a class="dock-item" href="/learning.html"><span aria-hidden="true">▤</span><small>Lessons</small></a>
+    <a class="dock-item" href="/simulator.html"><span aria-hidden="true">⌁</span><small>Practice</small></a>
+    <a class="dock-item" href="/leaderboard.html"><span aria-hidden="true">♧</span><small>Learners</small></a>
+    <a class="dock-item active" href="/profile.html" aria-current="page"><span aria-hidden="true">◉</span><small>Profile</small></a>
+  </nav>
+
+  <script src="/static/js/avatars.js"></script>
+  <script src="/static/js/profile.js"></script>
+</body>
+</html>

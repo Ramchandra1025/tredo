@@ -3,6 +3,7 @@ const questionForm = document.getElementById("answerForm");
 const optionsHost = document.getElementById("answerOptions");
 const feedbackHost = document.getElementById("answerFeedback");
 const checkButton = document.getElementById("checkAnswerBtn");
+const startQuizButton = document.getElementById("startQuizBtn");
 const continueButton = document.createElement("button");
 continueButton.type = "button";
 continueButton.id = "continueButton";
@@ -13,7 +14,7 @@ document.querySelector(".question-actions").append(continueButton);
 
 let levelData = null;
 let currentQuestion = null;
-let hasMasteredCurrent = false;
+let answerLocked = false;
 let hintedQuestion = null;
 let lastEngagement = Date.now();
 let lastSample = Date.now();
@@ -38,11 +39,12 @@ function drawProgress(data) {
 
 function buildQuestion(question) {
   currentQuestion = question;
-  hasMasteredCurrent = false;
+  answerLocked = false;
   hintedQuestion = null;
   feedbackHost.hidden = true;
   feedbackHost.replaceChildren();
   continueButton.hidden = true;
+  continueButton.textContent = "Continue →";
   checkButton.disabled = true;
   checkButton.hidden = false;
   checkButton.textContent = question.attempts ? "Try again" : "Check answer";
@@ -75,7 +77,7 @@ function buildQuestion(question) {
   document.getElementById("hintMessage").hidden = true;
 }
 
-function showFeedback({correct, answerText, explanation, lifeLost, remainingLives}) {
+function showFeedback({correct, answerText, explanation, lifeLost, remainingLives, canContinue = false}) {
   feedbackHost.replaceChildren();
   feedbackHost.hidden = false;
   feedbackHost.className = `answer-feedback ${correct ? "success" : "mistake"}`;
@@ -86,7 +88,9 @@ function showFeedback({correct, answerText, explanation, lifeLost, remainingLive
   feedbackHost.append(title, detail);
   if (!correct) {
     const lifeNote = document.createElement("small");
-    lifeNote.textContent = lifeLost ? "One life used. You can retry this question without losing another." : "You can retry this question; no more lives will be used for it.";
+    lifeNote.textContent = canContinue
+      ? (lifeLost ? "One life used. This question will return in the review round." : "This question will return in the review round.")
+      : (lifeLost ? "One life used. Retry this question without losing another." : "Retry this question; no more lives will be used for it.");
     feedbackHost.append(lifeNote);
     drawLives(remainingLives);
   }
@@ -117,11 +121,14 @@ async function loadLevel() {
   document.getElementById("lessonMeta").textContent = `${level.category.toUpperCase()} · LEVEL ${level.level} · ${level.world_title.toUpperCase()}`;
   document.getElementById("lessonTitle").textContent = level.title;
   document.getElementById("lessonContent").textContent = level.content;
-  document.getElementById("mentorMessage").textContent = level.description;
+  document.getElementById("mentorMessage").textContent = data.phase === "review"
+    ? "Let's revisit the questions you missed. Answer each one correctly to finish this level."
+    : level.description;
   drawProgress(data);
   drawLives(data.remaining_lives);
   if (data.completion_status === "completed") {
     showCompletedReview();
+    startQuizButton.hidden = true;
     document.getElementById("hintBtn").disabled = true;
     return;
   }
@@ -130,11 +137,14 @@ async function loadLevel() {
     return;
   }
   buildQuestion(data.question);
+  document.getElementById("questionCard").hidden = true;
+  document.getElementById("hintBtn").disabled = true;
+  startQuizButton.hidden = false;
 }
 
 questionForm.addEventListener("submit", async event => {
   event.preventDefault();
-  if (!currentQuestion || hasMasteredCurrent) return;
+  if (!currentQuestion || answerLocked) return;
   const selected = optionsHost.querySelector('input[name="answer"]:checked');
   if (!selected) return;
   checkButton.disabled = true;
@@ -152,13 +162,24 @@ questionForm.addEventListener("submit", async event => {
       const correctOption = optionsHost.querySelector(`input[value="${CSS.escape(data.correct_answer)}"]`)?.closest(".answer-option");
       selectedOption?.classList.add("wrong-choice");
       correctOption?.classList.add("correct-choice");
-      showFeedback({correct:false, answerText:data.correct_answer_text, explanation:data.explanation, lifeLost:data.life_lost, remainingLives:data.remaining_lives});
+      showFeedback({correct:false, answerText:data.correct_answer_text, explanation:data.explanation, lifeLost:data.life_lost, remainingLives:data.remaining_lives, canContinue:data.can_continue});
       optionsHost.querySelectorAll("input").forEach(input => { input.checked = false; });
-      checkButton.textContent = "Try again";
-      checkButton.disabled = true;
+      if (data.can_continue) {
+        answerLocked = true;
+        levelData = data.progress;
+        drawProgress(data.progress);
+        drawLives(data.remaining_lives);
+        optionsHost.querySelectorAll("input").forEach(input => { input.disabled = true; });
+        checkButton.hidden = true;
+        continueButton.textContent = "Next question →";
+        continueButton.hidden = false;
+      } else {
+        checkButton.textContent = "Try again";
+        checkButton.disabled = true;
+      }
       return;
     }
-    hasMasteredCurrent = true;
+    answerLocked = true;
     levelData = data.progress;
     drawProgress(data.progress);
     drawLives(data.remaining_lives);
@@ -176,12 +197,23 @@ questionForm.addEventListener("submit", async event => {
   }
 });
 
+startQuizButton.addEventListener("click", () => {
+  startQuizButton.hidden = true;
+  document.getElementById("questionCard").hidden = false;
+  document.getElementById("questionCard").scrollIntoView({behavior:"smooth", block:"center"});
+  optionsHost.querySelector('input[name="answer"]')?.focus();
+});
+
 continueButton.addEventListener("click", () => {
   if (!levelData?.question) {
     setError("Your progress is saved. Reload the level to continue.");
     return;
   }
-  document.getElementById("mentorMessage").textContent = "Nice work. Take this idea with you to the next question.";
+  document.getElementById("mentorMessage").textContent = levelData.phase === "review"
+    ? "Let's revisit the questions you missed. Answer each one correctly to finish this level."
+    : levelData.phase === "first_pass"
+      ? "Keep going. Any missed questions will return after the first round."
+      : "Nice work. Take this idea with you to the next question.";
   buildQuestion(levelData.question);
   document.getElementById("questionCard").scrollIntoView({behavior:"smooth", block:"center"});
 });

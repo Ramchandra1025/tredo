@@ -12,7 +12,7 @@
     <a class="brand" href="/dashboard.html" aria-label="TRADO dashboard">TRADO<span>.</span></a>
     <div class="nav-actions">
       <button class="icon-button" id="notificationsBtn" type="button" aria-label="Open notifications">♧ <span id="notificationCount" class="notification-count">0</span></button>
-      <button class="profile-chip" id="settingsBtn" type="button"><span class="profile-dot">T</span><span id="navUserName">Profile</span><span aria-hidden="true">⌄</span></button>
+      <button class="profile-chip" id="settingsBtn" type="button" aria-label="Open learning settings"><span class="profile-dot" id="navAvatar">T</span><span id="navUserName">Profile</span><span aria-hidden="true">⌄</span></button>
     </div>
   </header>
 
@@ -22,6 +22,7 @@
         <div class="eyebrow">YOUR LEARNING TRAIL</div>
         <h1>Hey, <span id="userName">Trader</span> <span class="wave" aria-hidden="true">✦</span></h1>
         <p class="muted">One small lesson at a time. Your practice stays virtual.</p>
+        <div class="welcome-identity"><span id="welcomeAvatar" class="welcome-avatar"></span><span><small>YOUR TRADER TYPE</small><strong id="traderTypeLabel">Beginner Trader</strong></span><a href="/profile.html">Edit profile</a></div>
       </div>
       <div class="streak-pill"><span aria-hidden="true">☀</span><strong id="streak">0</strong><span>day streak</span></div>
     </section>
@@ -48,6 +49,11 @@
       <article class="panel achievement-panel"><div class="section-heading"><div><div class="eyebrow">MILESTONES</div><h2>Your achievements</h2></div></div><div id="achievements" class="achievement-list"></div></article>
       <article class="panel activity-panel"><div class="section-heading"><div><div class="eyebrow">KEEP YOUR MOMENTUM</div><h2>Recent learning</h2></div></div><div id="recent" class="recent-list"></div></article>
     </section>
+
+    <section class="panel notes-panel">
+      <div class="section-heading"><div><div class="eyebrow">YOUR FIELD NOTES</div><h2>Lesson notes and materials</h2><p class="muted">Review the key idea, objective, and example before you practise.</p></div></div>
+      <div id="notesLevels" class="notes-grid"></div>
+    </section>
   </main>
 
   <nav class="game-dock" aria-label="Main navigation">
@@ -55,12 +61,13 @@
     <a class="dock-item" href="/learning.html"><span aria-hidden="true">▤</span><small>Lessons</small></a>
     <a class="dock-item" href="/simulator.html"><span aria-hidden="true">⌁</span><small>Practice</small></a>
     <a class="dock-item" href="/leaderboard.html"><span aria-hidden="true">♧</span><small>Learners</small></a>
-    <button class="dock-item" id="dockProfile" type="button"><span aria-hidden="true">◉</span><small>Profile</small></button>
+    <a class="dock-item" href="/profile.html"><span aria-hidden="true">◉</span><small>Profile</small></a>
   </nav>
 
   <dialog id="settingsDialog" class="app-dialog">
     <form method="dialog" class="dialog-top"><div><div class="eyebrow">YOUR PROFILE</div><h2>Learning settings</h2></div><button class="icon-button close-dialog" aria-label="Close settings">×</button></form>
     <p class="muted" id="profileSummary"></p>
+    <a class="btn ghost small" href="/profile.html">Edit profile and avatar</a>
     <form id="settingsForm">
       <fieldset class="settings-field"><legend>Learning paths</legend><div id="settingsCategories" class="settings-category-list"></div></fieldset>
       <label class="settings-label" for="dailyGoalSelect">Daily learning goal</label>
@@ -76,6 +83,7 @@
     <button class="btn ghost full" id="readAllBtn" type="button">Mark all as read</button>
   </dialog>
 
+  <script src="/static/js/avatars.js"></script>
   <script src="/static/js/dashboard.js"></script>
 </body>
 </html>

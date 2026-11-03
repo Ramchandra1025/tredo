@@ -34,6 +34,7 @@ if (form) form.addEventListener("submit", async event => {
       ? {
           name: document.getElementById("name").value,
           email: document.getElementById("email").value,
+          trader_type: document.getElementById("traderType").value,
           password: document.getElementById("password").value,
           confirm_password: document.getElementById("confirmPassword").value,
           terms_accepted: document.getElementById("termsAccepted").checked

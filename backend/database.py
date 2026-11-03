@@ -408,6 +408,8 @@ def _learning_schema(db):
             daily_goal_minutes INTEGER NOT NULL DEFAULT 10 CHECK(daily_goal_minutes IN (5,10,15,20,30)),
             preferred_language TEXT NOT NULL DEFAULT 'en',
             timezone TEXT NOT NULL DEFAULT 'UTC',
+            trader_type TEXT NOT NULL DEFAULT 'beginner',
+            avatar_id TEXT NOT NULL DEFAULT 'candela',
             onboarding_complete INTEGER NOT NULL DEFAULT 0 CHECK(onboarding_complete IN (0,1)),
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
@@ -547,6 +549,11 @@ def _learning_schema(db):
         CREATE INDEX IF NOT EXISTS idx_daily_activity_date ON daily_activity(user_id, activity_date);
         """
     )
+    setting_columns = {row["name"] for row in db.execute("PRAGMA table_info(user_settings)").fetchall()}
+    if "trader_type" not in setting_columns:
+        db.execute("ALTER TABLE user_settings ADD COLUMN trader_type TEXT NOT NULL DEFAULT 'beginner'")
+    if "avatar_id" not in setting_columns:
+        db.execute("ALTER TABLE user_settings ADD COLUMN avatar_id TEXT NOT NULL DEFAULT 'candela'")
 
 
 def _question_rows(entry, category, level):

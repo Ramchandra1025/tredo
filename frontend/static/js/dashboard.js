@@ -94,6 +94,27 @@ function drawRecent(items) {
   host.innerHTML = items.map(item => `<div class="recent-row"><span class="recent-check" aria-hidden="true">✓</span><div><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.category)} · ${item.score}% first-try accuracy</small></div><span class="recent-xp">+50 XP</span></div>`).join("");
 }
 
+function drawNotes(levels) {
+  const host = document.getElementById("notesLevels");
+  if (!levels.length) {
+    host.innerHTML = '<p class="muted empty-copy">Choose a learning path to see its notes and materials here.</p>';
+    return;
+  }
+  host.innerHTML = levels.map(level => {
+    const locked = level.state === "locked";
+    const action = locked
+      ? '<span class="notes-locked" aria-label="Locked">Complete the previous level to open these notes.</span>'
+      : `<a class="notes-action" href="/lesson.html?id=${encodeURIComponent(level.id)}">${level.state === "completed" ? "Review notes" : "Start learning"} <span aria-hidden="true">→</span></a>`;
+    return `<article class="notes-level-card ${locked ? "locked" : ""}">
+      <small>LEVEL ${Number(level.level)} · ${escapeHtml(level.category)}</small>
+      <h3>${escapeHtml(level.title)}</h3>
+      <div><strong>Objective</strong><p>${escapeHtml(level.description)}</p></div>
+      <div><strong>Lesson notes</strong><p>${escapeHtml(level.content)}</p></div>
+      ${action}
+    </article>`;
+  }).join("");
+}
+
 function drawDaily(data) {
   const goal = Number(data.daily_goal_minutes || 10);
   const activity = data.daily_activity || {};
@@ -115,7 +136,9 @@ async function loadDashboard(category) {
   activeCategory = data.active_category;
   document.getElementById("userName").textContent = data.user.name;
   document.getElementById("navUserName").textContent = data.user.name.split(" ")[0];
-  document.querySelector(".profile-dot").textContent = data.user.name.trim().charAt(0).toUpperCase() || "T";
+  document.getElementById("navAvatar").innerHTML = window.tradoAvatarMarkup(data.user.avatar_id, "avatar-art nav-avatar-art");
+  document.getElementById("welcomeAvatar").innerHTML = window.tradoAvatarMarkup(data.user.avatar_id, "avatar-art welcome-avatar-art");
+  document.getElementById("traderTypeLabel").textContent = data.user.trader_type_label || "Beginner Trader";
   document.getElementById("xp").textContent = Number(data.user.xp).toLocaleString();
   document.getElementById("coins").textContent = Number(data.user.coins).toLocaleString();
   document.getElementById("streak").textContent = data.user.current_streak;
@@ -123,6 +146,7 @@ async function loadDashboard(category) {
   drawLives(data.user.remaining_lives);
   drawCategoryTabs(data.categories, activeCategory);
   drawRoadmap(data.roadmap || [], activeCategory || "Learning");
+  drawNotes(data.roadmap || []);
   drawDaily(data);
   drawAchievements(data.achievements || []);
   drawRecent(data.recent || []);
@@ -145,7 +169,6 @@ document.getElementById("settingsBtn").addEventListener("click", async () => {
   try { await loadSettings(); settingsDialog.showModal(); }
   catch (error) { document.getElementById("settingsMessage").textContent = error.message; }
 });
-document.getElementById("dockProfile").addEventListener("click", () => document.getElementById("settingsBtn").click());
 document.getElementById("settingsForm").addEventListener("submit", async event => {
   event.preventDefault();
   const categories = [...document.querySelectorAll('input[name="settings-category"]:checked')].map(input => input.value);
