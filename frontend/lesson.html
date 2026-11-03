@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Learn a trading concept · TRADO</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="lesson-body">
+  <header class="game-nav lesson-nav">
+    <a class="back-link" href="/dashboard.html" aria-label="Back to learning trail">← <span>Trail</span></a>
+    <a class="brand" href="/dashboard.html">TRADO<span>.</span></a>
+    <div class="lesson-lives"><span aria-hidden="true">♥</span><strong id="lessonLives">5</strong><small>lives</small></div>
+  </header>
+
+  <main class="lesson-main">
+    <section class="lesson-topline">
+      <div><div id="lessonMeta" class="eyebrow">LOADING LEVEL</div><h1 id="lessonTitle">Loading your lesson…</h1></div>
+      <div class="lesson-top-actions"><button type="button" class="hint-button" id="hintBtn" disabled>✦ Hint <span>3 coins</span></button><button type="button" class="icon-button" id="exitLesson" aria-label="Return to your trail">×</button></div>
+    </section>
+    <div class="question-progress"><div class="progress-track"><span id="progressFill"></span></div><div class="progress-label"><span id="questionCount">0 / 6 mastered</span><span id="progressPercent">0%</span></div></div>
+
+    <section class="learning-card panel">
+      <div class="mentor-row"><div class="mentor-avatar" aria-hidden="true"><span>🐂</span><i class="mentor-spark">✦</i></div><div><strong>Coach Candela</strong><p id="mentorMessage">Let's learn one idea and then practise it.</p></div></div>
+      <div class="lesson-copy"><div><div class="eyebrow">THE QUICK LESSON</div><p id="lessonContent"></p><div id="hintMessage" class="hint-message" role="status" hidden></div></div>
+        <div class="candle-visual" aria-label="Illustrative candlestick chart. Simulated educational example, not live market data.">
+          <span class="visual-label">ILLUSTRATIVE PRICE ACTION</span>
+          <svg viewBox="0 0 330 150" role="img" aria-label="Simulated candlestick example with open, high, low, and close">
+            <path class="chart-grid" d="M20 32H310M20 74H310M20 116H310" />
+            <g class="candle green"><path d="M53 26V119M43 48H63V90H43Z" /></g>
+            <g class="candle red"><path d="M111 36V128M101 58H121V100H101Z" /></g>
+            <g class="candle green"><path d="M169 18V105M159 43H179V81H159Z" /></g>
+            <g class="candle green"><path d="M227 29V119M217 55H237V98H217Z" /></g>
+            <g class="candle red"><path d="M285 22V130M275 47H295V91H275Z" /></g>
+          </svg>
+          <small>Simulated lesson example · not live prices</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="questionCard" class="question-card panel">
+      <div class="question-head"><div><span class="question-kicker">QUESTION <b id="activeQuestionNumber">1</b> OF 6</span><h2 id="questionText">Loading question…</h2></div><span class="quiz-mascot" aria-hidden="true">📈</span></div>
+      <form id="answerForm">
+        <div id="answerOptions" class="answer-options"></div>
+        <div id="answerFeedback" class="answer-feedback" role="status" hidden></div>
+        <div class="question-actions"><span class="question-tip">Choose an answer, then check your thinking.</span><button class="btn" id="checkAnswerBtn" type="submit" disabled>Check answer</button></div>
+      </form>
+    </section>
+    <section id="levelReview" class="panel review-panel" hidden></section>
+    <p id="lessonError" class="message lesson-error" role="alert"></p>
+  </main>
+
+  <dialog id="completionDialog" class="completion-dialog">
+    <div class="celebration-mark" aria-hidden="true">✦</div><div class="eyebrow">LEVEL COMPLETE</div><h2 id="completionTitle">Brilliant work!</h2><p class="muted">You mastered every question. Keep your learning streak moving.</p>
+    <div class="completion-stars" id="completionStars" aria-label="Stars earned">★★★</div>
+    <div class="completion-rewards"><div><small>XP EARNED</small><strong id="completionXp">+0</strong></div><div><small>COINS EARNED</small><strong id="completionCoins">+0</strong></div><div><small>ACCURACY</small><strong id="completionAccuracy">0%</strong></div></div>
+    <p id="completionAchievements" class="completion-achievements"></p>
+    <div class="completion-actions"><a class="btn ghost" href="/dashboard.html">Back to trail</a><button class="btn" id="nextLevelBtn" type="button">Continue path →</button></div>
+  </dialog>
+  <script src="/static/js/lesson.js"></script>
+</body>
+</html>

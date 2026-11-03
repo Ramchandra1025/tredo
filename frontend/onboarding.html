@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Choose your learning path · TRADO</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <header class="game-nav"><a class="brand" href="/">TRADO<span>.</span></a><span class="onboarding-step">FIRST, MAKE IT YOURS&nbsp; · &nbsp;1 / 1</span></header>
+  <main class="onboarding-wrap">
+    <form id="onboardingForm" class="panel onboarding-panel">
+      <div class="eyebrow">WELCOME TO YOUR LEARNING TRAIL</div>
+      <h1>What would you like to learn?</h1>
+      <p class="muted">Pick one or more paths. You can change these any time in your profile.</p>
+      <div id="onboardingCategories" class="onboarding-categories" aria-label="Trading categories"></div>
+      <div class="goal-select-wrap"><label for="dailyGoal">How much time feels right each day?</label><select id="dailyGoal"><option value="5">5 minutes · a quick start</option><option value="10" selected>10 minutes · steady progress</option><option value="15">15 minutes · build a habit</option><option value="20">20 minutes · go deeper</option><option value="30">30 minutes · full focus</option></select></div>
+      <p id="onboardingMessage" class="message" role="status"></p>
+      <button class="btn full" type="submit">Build my learning trail <span aria-hidden="true">→</span></button>
+    </form>
+  </main>
+  <script src="/static/js/onboarding.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Your learning trail · TRADO</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="game-body">
+  <header class="game-nav">
+    <a class="brand" href="/dashboard.html" aria-label="TRADO dashboard">TRADO<span>.</span></a>
+    <div class="nav-actions">
+      <button class="icon-button" id="notificationsBtn" type="button" aria-label="Open notifications">♧ <span id="notificationCount" class="notification-count">0</span></button>
+      <button class="profile-chip" id="settingsBtn" type="button"><span class="profile-dot">T</span><span id="navUserName">Profile</span><span aria-hidden="true">⌄</span></button>
+    </div>
+  </header>
+
+  <main class="game-page">
+    <section class="welcome-row">
+      <div>
+        <div class="eyebrow">YOUR LEARNING TRAIL</div>
+        <h1>Hey, <span id="userName">Trader</span> <span class="wave" aria-hidden="true">✦</span></h1>
+        <p class="muted">One small lesson at a time. Your practice stays virtual.</p>
+      </div>
+      <div class="streak-pill"><span aria-hidden="true">☀</span><strong id="streak">0</strong><span>day streak</span></div>
+    </section>
+
+    <section class="path-picker panel" aria-labelledby="pathHeading">
+      <div class="section-heading"><div><div class="eyebrow">CHOOSE A TRAIL</div><h2 id="pathHeading">Your learning paths</h2></div><span class="path-note">Progress saves automatically</span></div>
+      <div id="categories" class="path-tabs" role="tablist" aria-label="Trading learning paths"></div>
+    </section>
+
+    <section class="game-stats" aria-label="Learning resources">
+      <article class="resource-card lives-card"><div class="resource-icon" aria-hidden="true">♥</div><div><small>LIVES</small><strong id="lives">♥ ♥ ♥ ♥ ♥</strong><span id="livesNote">5 ready to learn</span></div></article>
+      <article class="resource-card coins-card"><div class="resource-icon" aria-hidden="true">◉</div><div><small>COINS</small><strong id="coins">0</strong><span>Virtual learning rewards</span></div></article>
+      <article class="resource-card xp-card"><div class="resource-icon" aria-hidden="true">✦</div><div><small>TOTAL XP</small><strong id="xp">0</strong><span id="levelsDone">0 levels completed</span></div></article>
+      <article class="resource-card time-card"><div class="resource-icon" aria-hidden="true">◷</div><div class="time-copy"><small>TODAY'S GOAL · <span id="goalLabel">10 MIN</span></small><strong><span id="activeMinutes">0</span><small> min</small></strong><div class="goal-track"><span id="goalProgress"></span></div><span id="goalStatus">Your learning time adds up here</span></div></article>
+    </section>
+
+    <section class="roadmap-panel panel">
+      <div class="roadmap-heading"><div><div class="eyebrow" id="categoryEyebrow">STOCK TRADING</div><h2 id="roadmapTitle">Trading Foundations</h2><p class="muted" id="roadmapSub">Follow the trail and unlock each level as you learn.</p></div><div class="road-legend"><span><i class="legend-dot complete"></i>Done</span><span><i class="legend-dot current"></i>Next</span><span><i class="legend-dot locked"></i>Locked</span></div></div>
+      <div id="roadmap" class="roadmap" aria-label="Learning level roadmap"></div>
+      <div id="roadmapEmpty" class="empty-state" hidden>Choose a learning path in your settings to begin.</div>
+    </section>
+
+    <section class="dashboard-lower">
+      <article class="panel achievement-panel"><div class="section-heading"><div><div class="eyebrow">MILESTONES</div><h2>Your achievements</h2></div></div><div id="achievements" class="achievement-list"></div></article>
+      <article class="panel activity-panel"><div class="section-heading"><div><div class="eyebrow">KEEP YOUR MOMENTUM</div><h2>Recent learning</h2></div></div><div id="recent" class="recent-list"></div></article>
+    </section>
+  </main>
+
+  <nav class="game-dock" aria-label="Main navigation">
+    <a class="dock-item active" href="/dashboard.html"><span aria-hidden="true">⌂</span><small>Trail</small></a>
+    <a class="dock-item" href="/learning.html"><span aria-hidden="true">▤</span><small>Lessons</small></a>
+    <a class="dock-item" href="/simulator.html"><span aria-hidden="true">⌁</span><small>Practice</small></a>
+    <a class="dock-item" href="/leaderboard.html"><span aria-hidden="true">♧</span><small>Learners</small></a>
+    <button class="dock-item" id="dockProfile" type="button"><span aria-hidden="true">◉</span><small>Profile</small></button>
+  </nav>
+
+  <dialog id="settingsDialog" class="app-dialog">
+    <form method="dialog" class="dialog-top"><div><div class="eyebrow">YOUR PROFILE</div><h2>Learning settings</h2></div><button class="icon-button close-dialog" aria-label="Close settings">×</button></form>
+    <p class="muted" id="profileSummary"></p>
+    <form id="settingsForm">
+      <fieldset class="settings-field"><legend>Learning paths</legend><div id="settingsCategories" class="settings-category-list"></div></fieldset>
+      <label class="settings-label" for="dailyGoalSelect">Daily learning goal</label>
+      <select id="dailyGoalSelect"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="30">30 minutes</option></select>
+      <p id="settingsMessage" class="message" role="status"></p>
+      <div class="dialog-actions"><button class="btn ghost" id="logoutBtn" type="button">Log out</button><button class="btn" type="submit">Save settings</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="notificationsDialog" class="app-dialog notification-dialog">
+    <form method="dialog" class="dialog-top"><div><div class="eyebrow">YOUR INBOX</div><h2>Notifications</h2></div><button class="icon-button close-dialog" aria-label="Close notifications">×</button></form>
+    <div id="notificationList" class="notification-list"></div>
+    <button class="btn ghost full" id="readAllBtn" type="button">Mark all as read</button>
+  </dialog>
+
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
