@@ -645,7 +645,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--green); }
   50% { box-shadow: 0 0 0 12px #7958d70a, 0 7px 0 #5939b5, 0 16px 36px #7958d729; }
 }
 
-/* Supplied artwork for the authentication, avatar, and roadmap experiences. */
+/* Authentication page layout. */
 .auth-wrap.auth-layout {
   width: min(100%, 1120px);
   margin-inline: auto;
@@ -657,9 +657,9 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--green); }
 .auth-visual {
   display: flex;
   min-width: 0;
-  min-height: 600px;
+  min-height: 0;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   gap: 22px;
   overflow: hidden;
   padding: clamp(22px, 3vw, 34px);
@@ -672,48 +672,12 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--green); }
 .auth-visual .eyebrow { color: #c8b1ff; }
 .auth-visual h2 { max-width: 20ch; margin: 8px 0 10px; font-size: clamp(1.55rem, 2.7vw, 2.2rem); }
 .auth-visual p { max-width: 45ch; margin-bottom: 0; color: #d1c8e1; }
-.auth-image { width: 100%; margin: 0; overflow: hidden; border: 1px solid #ffffff22; border-radius: 18px; background: #080b14; aspect-ratio: 16 / 10; }
-.auth-image img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.auth-visual-register .auth-image img { object-fit: contain; }
 .auth-visual .visual-caption { color: #c5b9d9; font-size: .82rem; }
-.avatar-reference {
-  display: grid;
-  grid-template-columns: minmax(125px, 180px) minmax(0, 1fr);
-  align-items: center;
-  gap: 14px;
-  margin: 0 0 14px;
-  padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: linear-gradient(120deg, #f7f3ff, #fff);
-}
-.avatar-reference img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: center; border-radius: 11px; }
-.avatar-reference figcaption { color: var(--muted); font-size: .84rem; font-weight: 700; }
-.roadmap-reference {
-  display: grid;
-  grid-template-columns: minmax(160px, 280px) minmax(0, 1fr);
-  align-items: center;
-  gap: 16px;
-  max-width: 760px;
-  margin: 20px 0 4px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: linear-gradient(115deg, #fbfaff, #fff);
-}
-.roadmap-reference img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: center; border-radius: 10px; background: #080808; }
-.roadmap-reference figcaption { display: grid; gap: 5px; color: var(--muted); font-size: .84rem; line-height: 1.45; }
-.roadmap-reference figcaption strong { color: var(--text); font-size: .94rem; }
 @media (max-width: 760px) {
   .auth-wrap.auth-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 22px 16px 42px; }
   .auth-visual { min-height: auto; }
-  .auth-image { aspect-ratio: 16 / 9; }
 }
 @media (max-width: 540px) {
   .auth-wrap.auth-layout { padding-inline: 12px; }
   .auth-visual { padding: 20px; border-radius: 18px; }
-  .avatar-reference { grid-template-columns: 1fr; gap: 9px; }
-  .avatar-reference img { aspect-ratio: 16 / 8; }
-  .roadmap-reference { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  .roadmap-reference img { aspect-ratio: 16 / 8; }
 }
